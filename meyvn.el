@@ -3,9 +3,10 @@
 ;; Copyright (C) 2020  Daniel Szmulewicz
 
 ;; Author: Daniel Szmulewicz <daniel.szmulewicz@gmail.com>
-;; Keywords: clojure, meyvn, nrepl, cider
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
+;; Version: 1.0
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
