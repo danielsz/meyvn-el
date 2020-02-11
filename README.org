@@ -3,3 +3,16 @@
 This is the official Emacs client for the [[https://meyvn.org][Meyvn]] build tool.
 
 It complements Cider and turbocharges your nREPL with facilities such as hot-loading, reload on save, teardown and rebuild of application state, and more.
+
+** Installation
+
+Pending MELPA approval and inclusion, this is how you can install the Meyvn client.
+
+- Clone this repository.
+- Insert in your ~init.el~:
+#+begin_src emacs-lisp
+  (let ((meyvn-el (expand-file-name "~/path/to/meyvn.el")))
+  (when (file-exists-p meyvn-el)
+    (autoload 'meyvn-connect meyvn-el "Meyvn client" t)))
+#+end_src
+
