@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'cider-mode)
+(require 'cider-classpath)
 (require 'projectile)
 (require 'ivy)
 
@@ -240,8 +241,7 @@
 BUFFER is `deps.edn'.  START and END delineates selected text."
   (interactive "BSelect deps.edn buffer: \nr")
   (let* ((selected (-> (buffer-substring-no-properties start end)
-		       s-lines))
-	 (oldbuf (current-buffer)))
+		       s-lines)))
     (deactivate-mark)
     (with-current-buffer (get-buffer-create buffer)
       (dolist (line selected)
