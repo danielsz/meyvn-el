@@ -237,6 +237,7 @@
 	(els (s-split " " temp)))
     (concat (car els) " {:mvn/version " (cadr els) "}")))
 
+;;;###autoload
 (defun meyvn-depsify (buffer start end)
   "Transforms boot/leiningen coordinates to tools.deps format.
 BUFFER is `deps.edn'.  START and END delineates selected text."
