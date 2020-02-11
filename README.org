@@ -16,3 +16,4 @@ Pending MELPA approval and inclusion, this is how you can install the Meyvn clie
     (autoload 'meyvn-connect meyvn-el "Meyvn client" t)))
 #+end_src
 
+This will lazily load ~Meyvn~ which will invoke its full powers after the user summons ~meyvn-connect~ to connect to a Meyvn-enhanced nREPL. 
