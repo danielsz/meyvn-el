@@ -1,0 +1,5 @@
+* Meyvn client
+
+This is the official Emacs client for the [[https://meyvn.org][Meyvn]] build tool.
+
+It complements Cider and turbocharges your nREPL with facilities such as hot-loading, reload on save, teardown and rebuild of application state, and more.
