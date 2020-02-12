@@ -6,7 +6,7 @@
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13"))
+;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,10 +25,12 @@
 ;; This package provides an Emacs client for the Meyvn build tool, https://meyvn.org
 ;;; Code:
 
-(require 'cider-mode)
+(require 'cider)
 (require 'cider-classpath)
+(require 'cider-ns)
 (require 'projectile)
 (require 'ivy)
+(require 'counsel)
 
 (defun meyvn-get-repl-port ()
   "Find repl port."
@@ -52,7 +54,7 @@
   (let ((port (if (eq :auto (meyvn-read-repl-port))
 		  (meyvn-get-repl-port)
 		(meyvn-read-repl-port))))
-    (cider-connect `(:host "localhost" :port ,port))
+    (cider-connect-clj `(:host "localhost" :port ,port))
     (cider-ensure-op-supported "meyvn-init")
     (meyvn-nrepl-session-init)))
 
