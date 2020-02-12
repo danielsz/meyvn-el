@@ -23,6 +23,13 @@
 
 ;;; Commentary:
 ;; This package provides an Emacs client for the Meyvn build tool, https://meyvn.org
+
+;; To use this pacakge, simply add below code your init.el
+
+;;   (with-eval-after-load 'cider
+;;     (require 'meyvn)
+;;     (meyvn-setup))
+
 ;;; Code:
 
 (require 'cider)
@@ -229,8 +236,16 @@
 			("p" meyvn-persist-dep "Persist to deps.edn"))
               :keymap counsel-describe-map)))
 
-(add-hook 'after-save-hook #'meyvn-system-reload)
-(add-hook 'after-save-hook #'meyvn-reload-on-save)
+;;;###autoload
+(defun meyvn-setup ()
+  "Setup `meyvn'."
+  (add-hook 'after-save-hook #'meyvn-system-reload)
+  (add-hook 'after-save-hook #'meyvn-reload-on-save))
+
+(defun meyvn-teardown ()
+  "Teardown `meyvn'."
+  (remove-hook 'after-save-hook #'meyvn-system-reload)
+  (remove-hook 'after-save-hook #'meyvn-reload-on-save))
 
 ;; Transform Boot/Leiningen coordinates to tools.deps format
 
