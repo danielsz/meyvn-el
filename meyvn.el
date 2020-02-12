@@ -6,7 +6,7 @@
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13"))
+;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13") (s "1.12") (dash "2.17"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,6 +31,8 @@
 (require 'projectile)
 (require 'ivy)
 (require 'counsel)
+(require 's)
+(require 'dash)
 
 (defun meyvn-get-repl-port ()
   "Find repl port."
