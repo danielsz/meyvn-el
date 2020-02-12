@@ -35,13 +35,13 @@
 (defun meyvn-get-repl-port ()
   "Find repl port."
   (let* ((dir (projectile-project-root))
-	 (file (concat dir ".nrepl-port")))
+	 (file (expand-file-name ".nrepl-port" dir)))
     (with-temp-buffer (insert-file-contents file)
 		      (buffer-string))))
 
 (defun meyvn-read-repl-port ()
   "Get repl port from meyvn config."
-  (let ((conf (meyvn-read-conf (concat (projectile-project-root) "/meyvn.edn"))))
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
@@ -128,11 +128,11 @@
 (defun meyvn-project-p ()
   "Does a Meyvn config exists?"
   (when-let ((dir (projectile-project-root)))
-    (file-exists-p (concat dir "/meyvn.edn"))))
+    (file-exists-p (expand-file-name "meyvn.edn" dir))))
 
 (defun meyvn-system-enabled-p ()
   "Is system enabled in Meyvn config?"
-  (let ((conf (meyvn-read-conf (concat (projectile-project-root) "/meyvn.edn"))))
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
@@ -149,7 +149,7 @@
   "In a meyvn repl, reload on file save."
   (when (and (eq major-mode 'clojure-mode) (meyvn-project-p) (meyvn-clj-suffix-p))
     (cider-ensure-connected)
-    (let* ((conf (meyvn-read-conf (concat (projectile-project-root) "/meyvn.edn")))
+    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root))))
 	   (reload-enabled-p (thread-last conf
 			       (gethash :interactive)
 			       (gethash :reload-on-save))))
@@ -159,7 +159,7 @@
   "Reload or restart system if conditions apply."
   (when (and (eq major-mode 'clojure-mode) (meyvn-project-p) (meyvn-system-enabled-p) (meyvn-clj-suffix-p))
     (cider-ensure-connected)
-    (let* ((conf (meyvn-read-conf (concat (projectile-project-root) "/meyvn.edn")))
+    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root))))
 	   (files (thread-last conf
 		    (gethash :interactive)
 		    (gethash :system)
