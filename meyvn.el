@@ -36,8 +36,9 @@
   "Find repl port."
   (let* ((dir (projectile-project-root))
 	 (file (expand-file-name ".nrepl-port" dir)))
-    (with-temp-buffer (insert-file-contents file)
-		      (buffer-string))))
+    (with-temp-buffer
+      (insert-file-contents file)
+      (buffer-string))))
 
 (defun meyvn-read-repl-port ()
   "Get repl port from meyvn config."
