@@ -35,9 +35,9 @@
 (defun meyvn-get-repl-port ()
   "Find repl port."
   (let* ((dir (projectile-project-root))
-	(file (concat dir ".nrepl-port")))
+	 (file (concat dir ".nrepl-port")))
     (with-temp-buffer (insert-file-contents file)
-      (buffer-string))))
+		      (buffer-string))))
 
 (defun meyvn-read-repl-port ()
   "Get repl port from meyvn config."
@@ -161,9 +161,9 @@
     (cider-ensure-connected)
     (let* ((conf (meyvn-read-conf (concat (projectile-project-root) "/meyvn.edn")))
 	   (files (thread-last conf
-		     (gethash :interactive)
-		     (gethash :system)
-		     (gethash :restart-on-change)))
+		    (gethash :interactive)
+		    (gethash :system)
+		    (gethash :restart-on-change)))
 	   (buffer (file-name-nondirectory buffer-file-name)))
       (when (seq-contains files buffer)
 	(meyvn-system-reset)))))
@@ -234,9 +234,9 @@
 (defun meyvn-depsify-transform-coords (s)
   "S represents a Maven coordinate."
   (let* ((temp (-> s
-		  s-trim
-		  (substring-no-properties  1 -1)))
-	(els (s-split " " temp)))
+		   s-trim
+		   (substring-no-properties  1 -1)))
+	 (els (s-split " " temp)))
     (concat (car els) " {:mvn/version " (cadr els) "}")))
 
 ;;;###autoload
