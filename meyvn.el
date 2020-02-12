@@ -6,7 +6,7 @@
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1"))
+;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13") (s "1.12") (dash "2.17"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -23,22 +23,44 @@
 
 ;;; Commentary:
 ;; This package provides an Emacs client for the Meyvn build tool, https://meyvn.org
+
+;; To use this pacakge, simply add below code your init.el
+
+;;   (with-eval-after-load 'cider
+;;     (require 'meyvn)
+;;     (meyvn-setup))
+
 ;;; Code:
 
-(require 'cider-mode)
+(require 'cider)
 (require 'cider-classpath)
+(require 'cider-ns)
 (require 'projectile)
 (require 'ivy)
+(require 'counsel)
+(require 's)
+(require 'dash)
 
 (defun meyvn-get-repl-port ()
   "Find repl port."
+<<<<<<< HEAD
   (let* ((file (expand-file-name ".nrepl-port" (projectile-project-root))))
     (with-temp-buffer (insert-file-contents file)
+=======
+  (let* ((dir (projectile-project-root))
+	 (file (expand-file-name ".nrepl-port" dir)))
+    (with-temp-buffer
+      (insert-file-contents file)
+>>>>>>> ff4fa3800760ea39e0a2ecad13b3ebfa9f1a74bd
       (buffer-string))))
 
 (defun meyvn-read-repl-port ()
   "Get repl port from meyvn config."
+<<<<<<< HEAD
   (let ((conf (meyvn-read-conf (expand-file-name "/meyvn.edn" (projectile-project-root)))))
+=======
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
+>>>>>>> ff4fa3800760ea39e0a2ecad13b3ebfa9f1a74bd
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
@@ -51,7 +73,7 @@
   (let ((port (if (eq :auto (meyvn-read-repl-port))
 		  (meyvn-get-repl-port)
 		(meyvn-read-repl-port))))
-    (cider-connect `(:host "localhost" :port ,port))
+    (cider-connect-clj `(:host "localhost" :port ,port))
     (cider-ensure-op-supported "meyvn-init")
     (meyvn-nrepl-session-init)))
 
@@ -112,7 +134,7 @@
   (interactive)
   (cider-ensure-connected)
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-init") (cider-current-connection))))
-    (message (nrepl-dict-get resp "value") )))
+    (message (nrepl-dict-get resp "value"))))
 
 ;; Reload system on file change
 
@@ -125,11 +147,19 @@
 (defun meyvn-project-p ()
   "Does a Meyvn config exists?"
   (when-let ((dir (projectile-project-root)))
+<<<<<<< HEAD
     (file-exists-p (expand-file-name "/meyvn.edn" dir))))
 
 (defun meyvn-system-enabled-p ()
   "Is system enabled in Meyvn config?"
   (let ((conf (meyvn-read-conf (expand-file-name "/meyvn.edn" (projectile-project-root)))))
+=======
+    (file-exists-p (expand-file-name "meyvn.edn" dir))))
+
+(defun meyvn-system-enabled-p ()
+  "Is system enabled in Meyvn config?"
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
+>>>>>>> ff4fa3800760ea39e0a2ecad13b3ebfa9f1a74bd
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
@@ -146,7 +176,7 @@
   "In a meyvn repl, reload on file save."
   (when (and (eq major-mode 'clojure-mode) (meyvn-project-p) (meyvn-clj-suffix-p))
     (cider-ensure-connected)
-    (let* ((conf (meyvn-read-conf (expand-file-name "/meyvn.edn" (projectile-project-root))))
+    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root))))
 	   (reload-enabled-p (thread-last conf
 			       (gethash :interactive)
 			       (gethash :reload-on-save))))
@@ -156,11 +186,11 @@
   "Reload or restart system if conditions apply."
   (when (and (eq major-mode 'clojure-mode) (meyvn-project-p) (meyvn-system-enabled-p) (meyvn-clj-suffix-p))
     (cider-ensure-connected)
-    (let* ((conf (meyvn-read-conf (expand-file-name  "/meyvn.edn" (projectile-project-root))))
+    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root))))
 	   (files (thread-last conf
-		     (gethash :interactive)
-		     (gethash :system)
-		     (gethash :restart-on-change)))
+		    (gethash :interactive)
+		    (gethash :system)
+		    (gethash :restart-on-change)))
 	   (buffer (file-name-nondirectory buffer-file-name)))
       (when (seq-contains files buffer)
 	(meyvn-system-reset)))))
@@ -223,17 +253,25 @@
 			("p" meyvn-persist-dep "Persist to deps.edn"))
               :keymap counsel-describe-map)))
 
-(add-hook 'after-save-hook #'meyvn-system-reload)
-(add-hook 'after-save-hook #'meyvn-reload-on-save)
+;;;###autoload
+(defun meyvn-setup ()
+  "Setup `meyvn'."
+  (add-hook 'after-save-hook #'meyvn-system-reload)
+  (add-hook 'after-save-hook #'meyvn-reload-on-save))
+
+(defun meyvn-teardown ()
+  "Teardown `meyvn'."
+  (remove-hook 'after-save-hook #'meyvn-system-reload)
+  (remove-hook 'after-save-hook #'meyvn-reload-on-save))
 
 ;; Transform Boot/Leiningen coordinates to tools.deps format
 
 (defun meyvn-depsify-transform-coords (s)
   "S represents a Maven coordinate."
   (let* ((temp (-> s
-		  s-trim
-		  (substring-no-properties  1 -1)))
-	(els (s-split " " temp)))
+		   s-trim
+		   (substring-no-properties  1 -1)))
+	 (els (s-split " " temp)))
     (concat (car els) " {:mvn/version " (cadr els) "}")))
 
 ;;;###autoload
