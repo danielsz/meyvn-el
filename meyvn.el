@@ -43,24 +43,14 @@
 
 (defun meyvn-get-repl-port ()
   "Find repl port."
-<<<<<<< HEAD
   (let* ((file (expand-file-name ".nrepl-port" (projectile-project-root))))
-    (with-temp-buffer (insert-file-contents file)
-=======
-  (let* ((dir (projectile-project-root))
-	 (file (expand-file-name ".nrepl-port" dir)))
     (with-temp-buffer
       (insert-file-contents file)
->>>>>>> ff4fa3800760ea39e0a2ecad13b3ebfa9f1a74bd
       (buffer-string))))
 
 (defun meyvn-read-repl-port ()
   "Get repl port from meyvn config."
-<<<<<<< HEAD
-  (let ((conf (meyvn-read-conf (expand-file-name "/meyvn.edn" (projectile-project-root)))))
-=======
   (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
->>>>>>> ff4fa3800760ea39e0a2ecad13b3ebfa9f1a74bd
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
