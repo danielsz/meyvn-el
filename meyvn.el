@@ -116,7 +116,7 @@
   (interactive)
   (cider-ensure-connected)
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-init") (cider-current-connection))))
-    (message (nrepl-dict-get resp "value") )))
+    (message (nrepl-dict-get resp "value"))))
 
 ;; Reload system on file change
 
