@@ -9,11 +9,18 @@ It complements Cider and interfaces with a nREPL connection to add capabilities 
 Pending MELPA approval and inclusion, this is how you can install the Meyvn client.
 
 - Clone this repository.
-- Insert in your ~init.el~:
+- Add to your ~init.el~ the following snippet:
 #+begin_src emacs-lisp
 (let ((meyvn-el (expand-file-name "~/path/to/meyvn.el")))
   (when (file-exists-p meyvn-el)
     (autoload 'meyvn-connect meyvn-el "Meyvn client" t)))
 #+end_src
 
-This will lazily load ~Meyvn~ which will invoke its full powers after the user summons ~meyvn-connect~ to connect to a Meyvn-enhanced nREPL. 
+This will lazily load ~Meyvn~ which will come into full effect after the user summons ~meyvn-connect~ to connect to a Meyvn-enhanced nREPL. 
+When this Emacs package becomes available via MELPA, the above will not be necessary anymore.
+
+The following code snippet is needed to enable the reload on save feature, and will continue to be required after MELPA inclusion.
+
+#+begin_src emacs-lisp
+(add-hook 'cider-mode-hook #'meyvn-setup)
+#+end_src

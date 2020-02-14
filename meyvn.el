@@ -24,11 +24,9 @@
 ;;; Commentary:
 ;; This package provides an Emacs client for the Meyvn build tool, https://meyvn.org
 
-;; To use this pacakge, simply add below code your init.el
+;; To use this pacakge, simply add the following code snippet in your init.el
 
-;;   (with-eval-after-load 'cider
-;;     (require 'meyvn)
-;;     (meyvn-setup))
+;;   (add-hook 'cider-mode-hook #'meyvn-setup)
 
 ;;; Code:
 
@@ -137,11 +135,6 @@
 (defun meyvn-project-p ()
   "Does a Meyvn config exists?"
   (when-let ((dir (projectile-project-root)))
-    (file-exists-p (expand-file-name "/meyvn.edn" dir))))
-
-(defun meyvn-system-enabled-p ()
-  "Is system enabled in Meyvn config?"
-  (let ((conf (meyvn-read-conf (expand-file-name "/meyvn.edn" (projectile-project-root)))))
     (file-exists-p (expand-file-name "meyvn.edn" dir))))
 
 (defun meyvn-system-enabled-p ()
