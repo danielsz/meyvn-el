@@ -137,19 +137,16 @@
 (defun meyvn-project-p ()
   "Does a Meyvn config exists?"
   (when-let ((dir (projectile-project-root)))
-<<<<<<< HEAD
     (file-exists-p (expand-file-name "/meyvn.edn" dir))))
 
 (defun meyvn-system-enabled-p ()
   "Is system enabled in Meyvn config?"
   (let ((conf (meyvn-read-conf (expand-file-name "/meyvn.edn" (projectile-project-root)))))
-=======
     (file-exists-p (expand-file-name "meyvn.edn" dir))))
 
 (defun meyvn-system-enabled-p ()
   "Is system enabled in Meyvn config?"
   (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
->>>>>>> ff4fa3800760ea39e0a2ecad13b3ebfa9f1a74bd
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
