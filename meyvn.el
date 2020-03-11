@@ -6,7 +6,7 @@
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13") (s "1.12") (dash "2.17") (parseedn "0.1.0"))
+;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (s "1.12") (dash "2.17") (parseedn "0.1.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,8 +34,6 @@
 (require 'cider-classpath)
 (require 'cider-ns)
 (require 'projectile)
-(require 'ivy)
-(require 'counsel)
 (require 's)
 (require 'dash)
 (require 'parseedn)
@@ -216,23 +214,25 @@
 						   nil nil nil)
 		      (cider-current-connection)))
 
-(defun meyvn-deps ()
-  "Load the Clojars libraries."
-  (interactive)
-  (let ((cands (meyvn-catalog)))
-    (ivy-read "Select a dependency: " cands
-              :action (lambda (x) (meyvn-candidates x))
-              :keymap counsel-describe-map)))
+(defun meyvn-deps (arg)
+  "Select a library from the Clojars catalog and load in the runtime.
 
-(defun meyvn-candidates (artifact)
-  "Select a library candidate denoted by ARTIFACT and add it to the runtime."
-  (interactive)
-  (let ((cands (meyvn-versions artifact)))
-    (ivy-read "Adding runtime dependency: " cands
-              :action '(1
-			("o" meyvn-add-dep "Add dep at runtime")
-			("p" meyvn-persist-dep "Persist to deps.edn"))
-              :keymap counsel-describe-map)))
+If called with the prefix argument denoted by ARG, will also write to `deps.edn'."
+  (interactive "p")
+  (let* ((cands (meyvn-catalog))
+	 (cand (completing-read "Select a dependency: " cands)))
+    (meyvn-candidates cand arg)))
+
+(defun meyvn-candidates (artifact arg)
+  "Helper function for meyvn-deps.
+
+Select a library candidate denoted by ARTIFACT and add it to the
+runtime.  If ARG indicates that the prefix argument was used,
+persist to `deps.edn'."
+  (let* ((cands (meyvn-versions artifact))
+	 (cand (completing-read "Adding runtime dependency: " cands)))
+    (meyvn-add-dep cand)
+    (when (= arg 4) (meyvn-persist-dep cand))))
 
 ;;;###autoload
 (defun meyvn-setup ()
