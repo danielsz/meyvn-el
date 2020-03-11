@@ -1,4 +1,4 @@
-;;; meyvn.el --- Emacs meyvn Client                  -*- lexical-binding: t; -*-
+;;; meyvn.el --- Meyvn client                  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Daniel Szmulewicz
 
@@ -6,7 +6,7 @@
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
 ;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13") (s "1.12") (dash "2.17"))
+;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (ivy "0.13") (counsel "0.13") (s "1.12") (dash "2.17") (parseedn "0.1.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 ;; This package provides an Emacs client for the Meyvn build tool, https://meyvn.org
 
-;; To use this pacakge, simply add the following code snippet in your init.el
+;; To use this package, simply add the following code snippet in your init.el
 
 ;;   (add-hook 'cider-mode-hook #'meyvn-setup)
 
@@ -38,6 +38,7 @@
 (require 'counsel)
 (require 's)
 (require 'dash)
+(require 'parseedn)
 
 (defun meyvn-get-repl-port ()
   "Find repl port."
@@ -80,7 +81,7 @@
   (nrepl-send-request '("op" "meyvn-system-init")
 		      (nrepl-make-response-handler (current-buffer)
 						   (lambda (_buffer value)
-						     (message (concat "System var: " value)))
+						     (message "System var: %s" value))
 						   nil nil nil)
 		      (cider-current-connection)))
 
@@ -115,7 +116,7 @@
   (let* ((resp (nrepl-send-sync-request '("op" "meyvn-properties") (cider-current-connection)))
 	 (report (nrepl-dict-get resp "report"))
 	 (count (nrepl-dict-get report "count")))
-    (message (concat "Found " (number-to-string count) " properties in the environment."))))
+    (message "Found %d %s" count "properties in the environment.")))
 
 (defun meyvn-nrepl-session-init ()
   "Will notify the Meyvn nREPL middleware that we're ready to go."
@@ -133,7 +134,7 @@
     (car (parseedn-read))))
 
 (defun meyvn-project-p ()
-  "Does a Meyvn config exists?"
+  "Does a Meyvn config exist?"
   (when-let ((dir (projectile-project-root)))
     (file-exists-p (expand-file-name "meyvn.edn" dir))))
 
@@ -264,7 +265,7 @@ BUFFER is `deps.edn'.  START and END delineates selected text."
     (deactivate-mark)
     (with-current-buffer (get-buffer-create buffer)
       (dolist (line selected)
-	(when (not (s-blank? line))
+	(when (s-present? line)
 	  (insert (meyvn-depsify-transform-coords line))
 	  (newline-and-indent))))))
 
