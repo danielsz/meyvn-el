@@ -8,7 +8,7 @@ It complements Cider and interfaces with a nREPL connection to add capabilities 
 
 *** MELPA
 
-Meyvn is available on the MELPA repository.
+Meyvn is available on the MELPA repository. Look for the ~meyvn~ package and install.
 
 *** Manual installation
 
@@ -21,7 +21,6 @@ Meyvn is available on the MELPA repository.
 #+end_src
 
 This will lazily load ~Meyvn~ which will come into full effect after the user summons ~meyvn-connect~ to connect to a Meyvn-enhanced nREPL. 
-When this Emacs package becomes available via MELPA, the above will not be necessary anymore.
 
 ** Configuration
 
