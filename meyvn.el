@@ -130,12 +130,17 @@
 
 (defun meyvn-kawa-repl ()
   "Will start a Kawa repl if needed."
-  (let ((port (if (eq :auto (meyvn-read-repl-port))
+  (let* ((port (if (eq :auto (meyvn-read-repl-port))
 		  (meyvn-get-repl-port)
-		(meyvn-read-repl-port))))
+		(meyvn-read-repl-port)))
+	 (kawa-port (number-to-string (1+ (string-to-number port))))
+	 (count 0))
     (when (meyvn-kawa-repl-enabled-p)
-      (sleep-for 0.5)
-      (geiser-connect 'kawa "localhost" (1+ (string-to-number port))))))
+      (while (and (< count 10)
+		 (not (zerop (call-process "lsof" nil nil nil (concat "-i:" kawa-port)))))
+	(sleep-for 0.1)
+	(setq count (1+ count)))
+      (geiser-connect 'kawa "localhost" kawa-port))))
 
 (defun meyvn-nrepl-session-init ()
   "Will notify the Meyvn nREPL middleware that we're ready to go."
