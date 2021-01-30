@@ -5,8 +5,8 @@
 ;; Author: Daniel Szmulewicz <daniel.szmulewicz@gmail.com>
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
-;; Version: 1.0
-;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (s "1.12") (dash "2.17") (parseedn "0.1.0"))
+;; Version: 1.1
+;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (s "1.12") (dash "2.17") (parseedn "0.1.0") (geiser "0.12"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
 
 ;; To use this package, simply add the following code snippet in your init.el
 
+;; Changelog: Kawa Geiser support.
+
 ;;   (add-hook 'cider-mode-hook #'meyvn-setup)
 
 ;;; Code:
@@ -37,6 +39,7 @@
 (require 's)
 (require 'dash)
 (require 'parseedn)
+(require 'geiser)
 
 (defun meyvn-get-repl-port ()
   "Find repl port."
@@ -52,6 +55,15 @@
       (thread-last conf
 	(gethash :interactive)
 	(gethash :repl-port)))))
+
+(defun meyvn-kawa-repl-enabled-p ()
+  "Check if we autostart a Kawa repl."
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
+    (ignore-errors
+      (thread-last conf
+	(gethash :interactive)
+	(gethash :kawa)
+	(gethash :enabled)))))
 
 ;;;###autoload
 (defun meyvn-connect ()
@@ -116,12 +128,22 @@
 	 (count (nrepl-dict-get report "count")))
     (message "Found %d %s" count "properties in the environment.")))
 
+(defun meyvn-kawa-repl ()
+  "Will start a Kawa repl if needed."
+  (let ((port (if (eq :auto (meyvn-read-repl-port))
+		  (meyvn-get-repl-port)
+		(meyvn-read-repl-port))))
+    (when (meyvn-kawa-repl-enabled-p)
+      (sleep-for 0.5)
+      (geiser-connect 'kawa "localhost" (1+ (string-to-number port))))))
+
 (defun meyvn-nrepl-session-init ()
   "Will notify the Meyvn nREPL middleware that we're ready to go."
   (interactive)
   (cider-ensure-connected)
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-init") (cider-current-connection))))
-    (message (nrepl-dict-get resp "value"))))
+    (message (nrepl-dict-get resp "value"))
+    (meyvn-kawa-repl)))
 
 ;; Reload system on file change
 
