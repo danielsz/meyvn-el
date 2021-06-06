@@ -210,6 +210,14 @@
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-catalog") (cider-current-connection))))
     (s-split "\n" (nrepl-dict-get resp "value"))))
 
+(defun meyvn-portal ()
+  "Toggle Portal inspector."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "meyvn-portal")
+  (let ((resp (nrepl-send-sync-request '("op" "meyvn-portal") (cider-current-connection))))
+    (s-split "\n" (nrepl-dict-get resp "value"))))
+
 (defun meyvn-versions (artifact)
   "Get available versions of ARTIFACT in repositories."
   (cider-ensure-connected)
