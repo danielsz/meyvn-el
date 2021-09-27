@@ -218,6 +218,14 @@
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-portal") (cider-current-connection))))
     (s-split "\n" (nrepl-dict-get resp "value"))))
 
+(defun meyvn-kawa ()
+  "Start a Kawa REPL."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "meyvn-kawa")
+  (let ((resp (nrepl-send-sync-request '("op" "meyvn-kawa") (cider-current-connection))))
+    (s-split "\n" (nrepl-dict-get resp "value"))))
+
 (defun meyvn-versions (artifact)
   "Get available versions of ARTIFACT in repositories."
   (cider-ensure-connected)
