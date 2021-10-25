@@ -42,14 +42,14 @@
 (require 'geiser)
 
 (defun meyvn-get-repl-port (dir)
-  "Find repl port."
+  "Find repl port in DIR."
   (let ((file (expand-file-name ".nrepl-port" dir)))
     (with-temp-buffer
       (insert-file-contents file)
       (buffer-string))))
 
 (defun meyvn-read-repl-port (dir)
-  "Get repl port from meyvn config."
+  "Get repl port from meyvn config in DIR."
   (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" dir))))
     (ignore-errors
       (thread-last conf
@@ -126,10 +126,9 @@ supplied."
 	 (count (nrepl-dict-get report "count")))
     (message "Found %d %s" count "properties in the environment.")))
 
-(defun meyvn-geiser ()
-  "Connect to a Kawa repl with geiser."
-  (let* ((dir (projectile-project-root))
-	 (port (if (eq :auto (meyvn-read-repl-port dir))
+(defun meyvn-geiser (dir)
+  "Connect to a Kawa repl with geiser in DIR."
+  (let* ((port (if (eq :auto (meyvn-read-repl-port dir))
 		  (meyvn-get-repl-port dir)
 		(meyvn-read-repl-port dir)))
 	 (kawa-port (number-to-string (1+ (string-to-number port))))
@@ -215,14 +214,17 @@ supplied."
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-portal") (cider-current-connection))))
     (s-split "\n" (nrepl-dict-get resp "value"))))
 
-(defun meyvn-kawa ()
+(defun meyvn-kawa (arg)
   "Start a Kawa REPL.  ARG determines root directory."
-  (interactive)
+  (interactive "p")
   (cider-ensure-connected)
   (cider-ensure-op-supported "meyvn-kawa")
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-kawa") (cider-current-connection))))
     (when (string= "OK" (car (s-split "\n" (nrepl-dict-get resp "value"))))
-      (meyvn-geiser))))
+      (let ((dir (if (= arg 4)
+		     default-directory
+		   (projectile-project-root))))
+	(meyvn-geiser dir)))))
 
 (defun meyvn-versions (artifact)
   "Get available versions of ARTIFACT in repositories."
