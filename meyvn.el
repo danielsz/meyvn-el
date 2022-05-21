@@ -214,6 +214,15 @@ supplied."
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-portal") (cider-current-connection))))
     (s-split "\n" (nrepl-dict-get resp "value"))))
 
+(defun meyvn-virgil-dependants ()
+  "Show dependants in Portal."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "meyvn-virgil-dependants")
+  (let* ((query (file-name-nondirectory (buffer-file-name)))
+         (resp (nrepl-send-sync-request `("op" "meyvn-virgil-dependants" "query" ,query) (cider-current-connection))))
+    (s-split "\n" (nrepl-dict-get resp "value"))))
+
 (defun meyvn-kawa (arg)
   "Start a Kawa REPL.  ARG determines root directory."
   (interactive "p")
