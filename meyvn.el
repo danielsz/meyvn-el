@@ -212,7 +212,7 @@ supplied."
   (cider-ensure-connected)
   (cider-ensure-op-supported "meyvn-portal")
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-portal") (cider-current-connection))))
-    (s-split "\n" (nrepl-dict-get resp "value"))))
+    (message (nrepl-dict-get resp "value"))))
 
 (defun meyvn-flowstorm ()
   "Toggle Flowstorm debugger."
@@ -220,7 +220,7 @@ supplied."
   (cider-ensure-connected)
   (cider-ensure-op-supported "meyvn-flowstorm")
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-flowstorm") (cider-current-connection))))
-    (s-split "\n" (nrepl-dict-get resp "value"))))
+    (message (nrepl-dict-get resp "value"))))
 
 (defun meyvn-virgil-dependants ()
   "Show dependants in Portal."
