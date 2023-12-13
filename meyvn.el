@@ -66,11 +66,11 @@ directory of the current buffer if ARG (command prefix) is
 supplied."
   (interactive "p")
   (let* ((dir (if (= arg 4)
-		 default-directory
-	       (projectile-project-root)))
-	(port (if (eq :auto (meyvn-read-repl-port dir))
-		  (meyvn-get-repl-port dir)
-		(meyvn-read-repl-port dir))))
+		  default-directory
+	        (projectile-project-root)))
+	 (port (if (eq :auto (meyvn-read-repl-port dir))
+		   (meyvn-get-repl-port dir)
+		 (meyvn-read-repl-port dir))))
     (cider-connect-clj `(:host "localhost" :port ,port))
     (cider-ensure-op-supported "meyvn-init")
     (meyvn-nrepl-session-init)))
@@ -214,6 +214,29 @@ supplied."
   (cider-ensure-op-supported "meyvn-portal")
   (let ((resp (nrepl-send-sync-request '("op" "meyvn-portal") (cider-current-connection))))
     (message (nrepl-dict-get resp "value"))))
+
+
+(defun meyvn-figwheel-build-id ()
+  "Get repl port from meyvn config in DIR."
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
+    (ignore-errors
+      (thread-last conf
+	(gethash :interactive)
+	(gethash :figwheel-api)
+        (gethash :build-id)))))
+
+(defun meyvn-figwheel ()
+  "Toggle Figwheel inspector."
+  (interactive)
+  (cider-ensure-connected)
+  (cider-ensure-op-supported "meyvn-figwheel")
+  (nrepl-send-request `("op" "meyvn-figwheel" "query" ,(meyvn-figwheel-build-id))
+		      (nrepl-make-response-handler (current-buffer)
+						   (lambda (_buffer value)
+						     (let ((msg value))
+						       (message msg)))
+						   nil nil nil)
+		      (cider-current-connection)))
 
 (defun meyvn-flowstorm ()
   "Toggle Flowstorm debugger."
