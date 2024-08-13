@@ -5,7 +5,7 @@
 ;; Author: Daniel Szmulewicz <daniel.szmulewicz@gmail.com>
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
-;; Version: 1.3
+;; Version: 1.4
 ;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (s "1.12") (dash "2.17") (parseedn "1.1.0") (parseclj "1.1.0") (geiser "0.12"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -57,6 +57,14 @@
 	(gethash :interactive)
 	(gethash :repl-port)))))
 
+(defun meyvn-read-unix-socket (dir)
+  "Get unix socket file from meyvn config in DIR."
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" dir))))
+    (ignore-errors
+      (thread-last conf
+	(gethash :interactive)
+	(gethash :unix-socket)))))
+
 ;;;###autoload
 (defun meyvn-connect (arg)
   "Connect to nREPL.
@@ -70,8 +78,11 @@ supplied."
 	        (projectile-project-root)))
 	 (port (if (eq :auto (meyvn-read-repl-port dir))
 		   (meyvn-get-repl-port dir)
-		 (meyvn-read-repl-port dir))))
-    (cider-connect-clj `(:host "localhost" :port ,port))
+		 (meyvn-read-repl-port dir)))
+	 (socket (meyvn-read-unix-socket dir)))
+    (if socket
+	(cider-connect-clj `(:host "local-unix-domain-socket" :port ,socket))
+	(cider-connect-clj `(:host "localhost" :port ,port)))
     (cider-ensure-op-supported "meyvn-init")
     (meyvn-nrepl-session-init)))
 
