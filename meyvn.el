@@ -94,6 +94,17 @@ supplied."
     (with-current-buffer (cider-popup-buffer "*meyvn-classpath*" 'select nil 'ancillary)
       (cider-classpath-list (current-buffer) (split-string (nrepl-dict-get resp "value") " ")))))
 
+(defun meyvn-toggle-classpath ()
+  "Show classpath for current project."
+  (interactive)
+  (cider-ensure-connected)
+  (nrepl-send-request '("op" "meyvn-toggle-classpath")
+		      (nrepl-make-response-handler (current-buffer)
+						   (lambda (_buffer value)
+						     (message "%s" value))
+						   nil nil nil)
+		      (cider-current-connection)))
+
 (defun meyvn-system-init! ()
   "Init the system."
   (interactive)
