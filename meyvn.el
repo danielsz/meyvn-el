@@ -5,8 +5,8 @@
 ;; Author: Daniel Szmulewicz <daniel.szmulewicz@gmail.com>
 ;; Created: 2020-02-11
 ;; URL: https://github.com/danielsz/meyvn-el
-;; Version: 1.7
-;; Package-Requires: ((emacs "25.1") (cider "0.23") (projectile "2.1") (s "1.12") (dash "2.17") (parseedn "1.1.0") (parseclj "1.1.0") (geiser "0.12"))
+;; Version: 1.8
+;; Package-Requires: ((emacs "28.1") (cider "0.23") (s "1.12") (dash "2.17") (parseedn "1.1.0") (parseclj "1.1.0") (geiser "0.12"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@
 (require 'cider)
 (require 'cider-classpath)
 (require 'cider-ns)
-(require 'projectile)
 (require 's)
 (require 'dash)
 (require 'parseclj)
@@ -65,6 +64,11 @@
 	(gethash :interactive)
 	(gethash :repl-unix-socket)))))
 
+(defun meyvn-project-root ()
+  (if-let ((proj (project-current)))
+      (expand-file-name (project-root (project-current)))
+    (getenv "HOME")))
+
 ;;;###autoload
 (defun meyvn-connect (arg)
   "Connect to nREPL.
@@ -75,7 +79,7 @@ supplied."
   (interactive "p")
   (let* ((dir (if (= arg 4)
 		  default-directory
-	        (projectile-project-root)))
+	        (meyvn-project-root)))
 	 (socket (meyvn-read-unix-socket dir)))
     (if socket
 	(cider-connect-clj `(:host "local-unix-domain-socket" :port ,(expand-file-name socket dir) :project-dir ,dir))
@@ -179,12 +183,12 @@ supplied."
 
 (defun meyvn-project-p ()
   "Does a Meyvn config exist?"
-  (when-let ((dir (projectile-project-root)))
+  (when-let ((dir (meyvn-project-root)))
     (file-exists-p (expand-file-name "meyvn.edn" dir))))
 
 (defun meyvn-system-enabled-p ()
   "Is system enabled in Meyvn config?"
-  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (meyvn-project-root)))))
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
@@ -201,7 +205,7 @@ supplied."
   "In a meyvn repl, reload on file save."
   (when (and (eq major-mode 'clojure-mode) (meyvn-project-p) (meyvn-clj-suffix-p))
     (cider-ensure-connected)
-    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root))))
+    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (meyvn-project-root))))
 	   (reload-enabled-p (thread-last conf
 			       (gethash :interactive)
 			       (gethash :reload-on-save))))
@@ -211,7 +215,7 @@ supplied."
   "Reload or restart system if conditions apply."
   (when (and (eq major-mode 'clojure-mode) (meyvn-project-p) (meyvn-system-enabled-p) (meyvn-clj-suffix-p))
     (cider-ensure-connected)
-    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root))))
+    (let* ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (meyvn-project-root))))
 	   (files (thread-last conf
 		    (gethash :interactive)
 		    (gethash :system)
@@ -240,7 +244,7 @@ supplied."
 
 (defun meyvn-figwheel-build-id ()
   "Get repl port from meyvn config in DIR."
-  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (projectile-project-root)))))
+  (let ((conf (meyvn-read-conf (expand-file-name "meyvn.edn" (meyvn-project-root)))))
     (ignore-errors
       (thread-last conf
 	(gethash :interactive)
@@ -286,7 +290,7 @@ supplied."
     (when (string= "OK" (car (s-split "\n" (nrepl-dict-get resp "value"))))
       (let ((dir (if (= arg 4)
 		     default-directory
-		   (projectile-project-root))))
+		   (meyvn-project-root))))
 	(meyvn-geiser dir)))))
 
 (defun meyvn-versions (artifact)
