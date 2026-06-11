@@ -65,8 +65,8 @@
 	(gethash :repl-unix-socket)))))
 
 (defun meyvn-project-root ()
-  (if-let ((proj (project-current)))
-      (expand-file-name (project-root (project-current)))
+  (if-let ((current (project-current)))
+      (expand-file-name (project-root current))
     (getenv "HOME")))
 
 ;;;###autoload
